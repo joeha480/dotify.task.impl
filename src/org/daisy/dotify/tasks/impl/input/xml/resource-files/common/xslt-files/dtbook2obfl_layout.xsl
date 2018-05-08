@@ -353,6 +353,16 @@ or count(descendant::dtb:note)>0 and count(descendant::*[not(ancestor::dtb:note)
 		<xsl:copy-of select="obfl:insertBackCoverTextAndRearJacketCopy(//dtb:level1[@class='backCoverText' or @class='rearjacketcopy'])"/>
 	</xsl:template>
 	
+	<xsl:template match="dtb:prodnote" priority="5">
+		<xsl:variable name="res"><block>
+			<xsl:apply-templates select="." mode="apply-block-attributes"/>
+			<xsl:apply-templates/>
+		</block></xsl:variable>
+		<xsl:if test="count(($res/obfl:block/descendant::node())[not(self::text() and normalize-space()='')])&gt;0">
+			<xsl:copy-of select="$res"/>
+		</xsl:if>
+	</xsl:template>
+	
 	<!-- Override default processing -->
 	<xsl:template match="dtb:prodnote[ancestor::dtb:imggroup]" priority="10">
 		<block keep="page" keep-with-next="1"><xsl:value-of select="concat(':: ', $l10nimagedescription, ' ')"/><leader position="100%" pattern=":"/></block>

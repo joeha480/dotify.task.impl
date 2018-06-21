@@ -1,27 +1,11 @@
-/*
- * Daisy Pipeline (C) 2005-2008 Daisy Consortium
- * 
- * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
- * any later version.
- * 
- * This library is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
- * details.
- * 
- * You should have received a copy of the GNU Lesser General Public License
- * along with this library; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
- */
 package org.daisy.dotify.tasks.impl.input.xml.docx;
 
 import java.io.File;
 import java.net.URLDecoder;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 
-import org.daisy.util.file.FileUtils;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.ext.DefaultHandler2;
@@ -83,7 +67,7 @@ public class ImageDecodeHandler extends DefaultHandler2 {
 					if (!f.exists()) {
 						f = new File(inputdir, URLDecoder.decode(src, "utf-8"));
 					}
-					FileUtils.copy(f, new File(outputdir, buildFileName(src)));
+					Files.copy(f.toPath(), new File(outputdir, buildFileName(src)).toPath(), StandardCopyOption.REPLACE_EXISTING);
 					String post = src.substring(src.lastIndexOf(".")).toLowerCase();
 					if (!(post.equals(".jpg"))) { //  || post.equals(".jpeg") || post.equals(".png")  
 						filesToConvert.add(outputFile);

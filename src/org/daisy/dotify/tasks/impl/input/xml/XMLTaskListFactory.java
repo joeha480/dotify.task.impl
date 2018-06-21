@@ -12,10 +12,12 @@ import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.daisy.dotify.common.io.ResourceLocator;
 import org.daisy.dotify.common.io.ResourceLocatorException;
 import org.daisy.dotify.tasks.impl.input.ValidatorTask;
+import org.daisy.dotify.tasks.impl.input.xml.docx.WordML2DTBook;
 import org.daisy.dotify.tasks.tools.XsltTask;
 import org.daisy.streamline.api.tasks.InternalTask;
 import org.daisy.streamline.api.tasks.InternalTaskException;
@@ -30,6 +32,16 @@ enum XMLTaskListFactory {
 		props = new HashMap<>();
 		props.put("dtbook@http://www.daisy.org/z3986/2005/dtbook/", conf->createTaskList("dtbook.properties", conf));
 		props.put("html@http://www.w3.org/1999/xhtml", conf->createTaskList("html.properties", conf));
+		props.put("wordDocument@http://schemas.microsoft.com/office/word/2003/wordml", conf->{
+			return Stream.concat(new WordML2DTBook().compile(conf.getXsltParams()).stream(), 
+					// Concat the result of WordML2DTBook with a task list for dtbook2obfl
+					createTaskList("dtbook.properties", new XMLConfig("dtbook", "http://www.daisy.org/z3986/2005/dtbook/",
+							conf.getTemplate(), 
+							conf.getXsltParams(), 
+							conf.getLocalLocator(), 
+							conf.getCommonLocator())).stream())
+					.collect(Collectors.toList());
+		});
 	}
 
 	static XMLTaskListFactory getInstance() {

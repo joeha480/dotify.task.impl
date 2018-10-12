@@ -13,12 +13,25 @@
 
 	<xsl:template match="/">
 		<properties>
-			<xsl:variable name="list">
+			<xsl:variable name="rawlist">
 				<xsl:apply-templates/>
 			</xsl:variable>
-			<xsl:for-each select="distinct-values($list/*/@key)">
-				<xsl:variable name="key" select="."/>
-				<xsl:copy-of select="$list/*[@key=$key][last()]"/>
+			<xsl:for-each select="distinct-values($rawlist/*/@name)">
+				<xsl:variable name="name" select="."/>
+				<!-- inherit attributes/values for this element from ancestors -->
+				<xsl:variable name="item">
+					<!-- change context -->
+					<xsl:for-each select="$rawlist/*[@name=$name][last()]">
+						<xsl:copy>
+							<!-- copy information from attributes in the whole list where the name matches -->
+							<xsl:copy-of select="$rawlist/*[@name=$name]/@*"/>
+							<!-- override with information from this element -->
+							<xsl:copy-of select="@*"/>
+						</xsl:copy>
+					</xsl:for-each>
+				</xsl:variable>
+				<!-- transform this element into a result element -->
+				<xsl:apply-templates select="$item/*" mode="asEntry"/>
 			</xsl:for-each>
 		</properties>
 	</xsl:template>
@@ -32,6 +45,9 @@
 		<xsl:apply-templates select="document(@href)/node()"/>
 	</xsl:template>
 	<xsl:template match="xsl:param">
+		<xsl:copy-of select="."/>
+	</xsl:template>
+	<xsl:template match="xsl:param" mode="asEntry">
 		<xsl:if test="@dotify:desc">
 			<!-- using tab as field separator, any tabs inside values will be converted to a regular space -->
 			<entry key="{@name}"><xsl:value-of select="concat(normalize-space(@dotify:default), '&#0009;', normalize-space(@dotify:values), '&#0009;', normalize-space(@dotify:desc))"/></entry>

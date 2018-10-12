@@ -23,8 +23,8 @@
 	<xsl:param name="volume-toc" as="xs:boolean" select="true()"/>
 	<xsl:param name="show-braille-page-numbers" as="xs:boolean" select="true()"/>
 	<xsl:param name="show-print-page-numbers" as="xs:boolean" select="true()"/>
-	<xsl:param name="matrix-table-columns-max" select="5"/>
-	<xsl:param name="staircase-table-columns-max" select="8"/>
+	<xsl:param name="matrix-table-columns-max" select="5" dotify:default="5"/>
+	<xsl:param name="staircase-table-columns-max" select="8" dotify:default="8"/>
 	<xsl:param name="volume-break-transition" select="'none'" dotify:desc="Volume break transition range. Within the range, text may be moved to the following volume." dotify:default="none" dotify:values="none/page/sheet"/>
 
 	<xsl:param name="l10nLang" select="'en'"/>

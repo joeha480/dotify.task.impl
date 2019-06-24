@@ -17,16 +17,20 @@
 		<html xml:lang="{normalize-space($lang)}">
 			<xsl:variable name="meta" select="/opf:package/opf:metadata/dc:*"/>
 			<!-- Get the head part from the first content document (excluding dc:*) -->
-			<xsl:for-each select="document(
-								key('manifest', /opf:package/opf:spine[1]/opf:itemref[1]/@idref)[1]/@href
-							)/html:html/html:head">
-				<xsl:copy>
-					<xsl:copy-of select="*[not(starts-with(@name, 'dc:'))]"/>
-					<xsl:for-each select="$meta">
-						<meta name="dc:{local-name()}" content="{text()}"/>
+			<head>
+				<xsl:for-each select = "/opf:package/opf:spine[1]/opf:itemref">			
+					<xsl:for-each select="document(
+										key('manifest', @idref)[1]/@href
+									)/html:html/html:head/*">
+						<xsl:copy>
+							<xsl:copy-of select="*[not(starts-with(@name, 'dc:'))]"/>
+							<xsl:for-each select="$meta">
+								<meta name="dc:{local-name()}" content="{text()}"/>
+							</xsl:for-each>
+						</xsl:copy>
 					</xsl:for-each>
-				</xsl:copy>
-			</xsl:for-each>
+				</xsl:for-each>
+			</head>
 			<body><xsl:apply-templates select="//opf:spine"/></body>
 		</html>
 	</xsl:template>

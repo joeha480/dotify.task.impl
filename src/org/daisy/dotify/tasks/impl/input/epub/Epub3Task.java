@@ -58,15 +58,7 @@ public class Epub3Task extends ReadWriteTask {
 				logger.info("Merging content files...");
 				ContainerReader container = new ContainerReader(unpacked);
 				ContentMerger merger = new ContentMerger(container);
-				if (opfPath==null && container.getOPFPaths().size()>1) {
-					StringBuilder sb = new StringBuilder("Epub container contains more than one OPF:");
-					for (String s : container.getOPFPaths()) {
-						sb.append(" ");
-						sb.append(s);
-					}
-					throw new InternalTaskException(sb.toString());
-				}
-				merger.makeSingleContentDocument(opfPath==null?container.getOPFPaths().get(0):opfPath, output);
+				merger.makeSingleContentDocument(checkOpfPath(container), output);
 			} catch (EPUB3ReaderException e) {
 				throw new InternalTaskException(e);
 			} finally {
@@ -89,15 +81,7 @@ public class Epub3Task extends ReadWriteTask {
 				logger.info("Merging content files...");
 				ContainerReader container = new ContainerReader(unpacked.toFile());
 				ContentMerger merger = new ContentMerger(container);
-				if (opfPath==null && container.getOPFPaths().size()>1) {
-					StringBuilder sb = new StringBuilder("Epub container contains more than one OPF:");
-					for (String s : container.getOPFPaths()) {
-						sb.append(" ");
-						sb.append(s);
-					}
-					throw new InternalTaskException(sb.toString());
-				}
-				String _opfPath = opfPath==null?container.getOPFPaths().get(0):opfPath;
+				String _opfPath = checkOpfPath(container);
 				Path manifestFile = output.getPath().resolve("index.html");
 				merger.makeSingleContentDocument(_opfPath, manifestFile.toFile());
 				AnnotatedFile manifest = new DefaultAnnotatedFile.Builder(manifestFile).extension("html").mediaType("application/xhtml+xml").build();
@@ -114,6 +98,18 @@ public class Epub3Task extends ReadWriteTask {
 		} catch (IOException e) {
 			throw new InternalTaskException(e);
 		}
+	}
+	
+	private String checkOpfPath(ContainerReader container) throws InternalTaskException {
+		if (opfPath==null && container.getOPFPaths().size()>1) {
+			StringBuilder sb = new StringBuilder("Epub container contains more than one OPF:");
+			for (String s : container.getOPFPaths()) {
+				sb.append(" ");
+				sb.append(s);
+			}
+			throw new InternalTaskException(sb.toString());
+		}
+		return opfPath==null?container.getOPFPaths().get(0):opfPath;
 	}
 	
 	private Stream<Path> moveResources(ContainerReader reader, String path, Path sourceFolder, Path targetFolder) throws EPUB3ReaderException {
